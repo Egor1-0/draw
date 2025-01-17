@@ -10,5 +10,5 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id: Mapped[int] = mapped_column(BigInteger)
 
-    words: Mapped[list['Keyword']] = relationship('Keyword',
-                                                  back_populates='user')
+    words: Mapped[list["Keyword"]] = relationship('Keyword',
+                         back_populates='user')

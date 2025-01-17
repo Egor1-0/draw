@@ -1,9 +1,20 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-# start_kb = InlineKeyboardMarkup(inline_keyboard=[
-#     [InlineKeyboardButton(text='Добавить ключевое слово', callback_data='add_word'),
-#      InlineKeyboardButton(text='Удалить ключевое слово', callback_data='delete_work')],
-#     [InlineKeyboardButton(text='Мои чаты', callback_data='my_chats')],
-#     [InlineKeyboardButton(text='Черный список', callback_data='black_list')],
-#     [InlineKeyboardButton(text='Поддержка', callback_data='help')]
-# ])
+from database.models.keyword import Keyword
+from keyboards.user.factory import DeleteWordFactory
+
+
+
+cancel = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Отмена', callback_data='cancel')]
+], resize_keyboard=True)
+
+def delete_keyword_kb(words: list[Keyword]):
+    kb = InlineKeyboardBuilder()
+    for word in words:
+        kb.button(text=word.word, callback_data=DeleteWordFactory(word_id=word.id))
+
+    kb.adjust(1)
+
+    return kb.as_markup(resize_keyboard=True)
