@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  bot:
+    build: 
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: bot
+    restart: unless-stopped
+#    depends_on:
+#      - nats
+
+#  nats:
+#    image: nats:latest
+#    entrypoint: /nats-server
+#    command: "-c /server.conf"
+#    ports:
+#      - "4223:4223"
+#    volumes:
+#      - ./server.conf:/server.conf
+#    restart: unless-stopped
