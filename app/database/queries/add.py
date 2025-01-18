@@ -1,6 +1,7 @@
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from database.models.chat import Chat
 from database.models.keyword import Keyword
 from database.models.user import User
 from database.tools import db_connection

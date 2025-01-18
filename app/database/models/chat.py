@@ -8,9 +8,8 @@ class Chat(Base):
     __tablename__ = 'chats'
 
     tg_id: Mapped[int] = mapped_column(BigInteger)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     link: Mapped[str]
     name: Mapped[str]
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
 
-    user: Mapped["User"] = relationship('User',
-                                        back_populates='chats')
+    user: Mapped["User"] = relationship('User', back_populates='chats')

@@ -32,7 +32,7 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     dp.include_routers(user_router)
 
-    await dp.start_polling(bot, userbot=client)
+    await dp.start_polling(bot)#, userbot=client)
 
 
 if __name__ == '__main__':

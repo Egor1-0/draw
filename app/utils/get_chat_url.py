@@ -8,10 +8,12 @@ def get_telegram_link(message: Message):
     entities = message.entities or []
     url = None
 
-    for item in entities:
-        if item.type == 'url':
-            url = item.extract_from(message.text)
-            if bool(re.match(pattern, url)):
-                return url
-
-    return False
+    try:
+        for item in entities:
+            if item.type == 'url':
+                url = item.extract_from(message.text)
+                if bool(re.match(pattern, url)):
+                    return url
+    except:
+        pass
+    return
