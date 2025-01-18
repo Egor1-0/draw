@@ -19,3 +19,17 @@ async def add_user(session: AsyncSession, tg_id: int):
 async def add_word(session: AsyncSession, tg_id: int, word: str):
     await session.execute(insert(Keyword).values(user_id=tg_id, word=word))
     await session.commit()
+
+
+@db_connection
+async def add_chat(session: AsyncSession,
+                   tg_id: int,
+                   link: str,
+                   name: str,
+                   user_id: int):
+    await session.execute(insert(Chat)
+                          .values(user_id=user_id,
+                                  tg_id=tg_id,
+                                  link=link,
+                                  name=name))
+    await session.commit()

@@ -5,6 +5,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
+from telethon import TelegramClient
 
 from config import config
 from handlers.user import user_router
@@ -14,18 +15,24 @@ from database.tools import create_table
 async def main():
     await create_table()
 
-    # nc = await connect('nats://nats:4222')
-    # js = nc.jetstream()
 
     bot = Bot(token=config.bot.token.get_secret_value(), default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
     dp = Dispatcher()
 
+    # nc = await connect('nats://nats:4222')
+    # js = nc.jetstream()
     # await init_nats_bot(bot, nc, js)
+
+    # client = TelegramClient('anon', api_id, api_hash)
+
+    # client.start()
+    # client.run_until_disconnected()
+
 
     await bot.delete_webhook(drop_pending_updates=True)
     dp.include_routers(user_router)
 
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, userbot=client)
 
 
 if __name__ == '__main__':

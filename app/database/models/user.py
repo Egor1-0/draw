@@ -7,8 +7,9 @@ from database.models.base import Base
 class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     tg_id: Mapped[int] = mapped_column(BigInteger)
 
     words: Mapped[list["Keyword"]] = relationship('Keyword',
-                         back_populates='user')
+                                                  back_populates='user')
+    chats: Mapped[list["Chat"]] = relationship('Chat',
+                                                  back_populates='user')
