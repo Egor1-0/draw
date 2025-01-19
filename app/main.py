@@ -5,8 +5,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
-from opentele.api import API
-from opentele.tl.telethon import TelegramClient
+from telethon import TelegramClient
 
 from config import config
 from handlers.user import user_router
@@ -24,7 +23,7 @@ async def main():
     # js = nc.jetstream()
     # await init_nats_bot(bot, nc, js)
 
-    client = TelegramClient('anon', api=API.TelegramDesktop.Generate())
+    client = TelegramClient('anon', config.bot.api_id, config.bot.api_hash)
 
     await client.start()
 
