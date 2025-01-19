@@ -2,14 +2,13 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
+from opentele.tl.telethon import TelegramClient
 
 import keyboards.user as user_kb
 import database.queries as db
 from keyboards.user import DeleteWordFactory, DeleteChatFactory
 from states.states import GetWord, GetChat
-from telethon import TelegramClient
 from utils.get_chat_url import get_telegram_link
-
 from utils.join_channel import join_channel_and_get_info
 
 router = Router()
@@ -97,7 +96,7 @@ async def add_word(message: Message, state: FSMContext):
 
 
 @router.message(GetChat.chat)
-async def wait_for_word(message: Message, state: FSMContext):  # , userbor: TelegramClient):
+async def wait_for_word(message: Message, state: FSMContext, userbor: TelegramClient):
     url = get_telegram_link(message)
     if not url:
         await message.answer('Ссылка должна быть ССЫЛКОЙ. введите заново или нажмите "отмена"',
@@ -106,14 +105,17 @@ async def wait_for_word(message: Message, state: FSMContext):  # , userbor: Tele
     await message.answer(url)
     await state.clear()
 
-    # info = await join_channel_and_get_info(userbor, url)
-    # if not info:
-    #     await message.answer('Произошла ошибка')
-    #     return
+    info = await join_channel_and_get_info(userbor, url)
+    if not info:
+        await message.answer('Произошла ошибка')
+        return
 
 
     user = await db.get_user(message.from_user.id)
-    # await db.add_chat(tg_id=user.id) #тут остановился
+    await db.add_chat(user_id=user.id,
+                      link=info['link'],
+                      tg_id=info['tg_id'],
+                      name=info['name'])
     await message.answer('Чат добавлен')
 
 

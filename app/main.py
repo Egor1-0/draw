@@ -5,7 +5,8 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
-from telethon import TelegramClient
+from opentele.api import API
+from opentele.tl.telethon import TelegramClient
 
 from config import config
 from handlers.user import user_router
@@ -23,16 +24,16 @@ async def main():
     # js = nc.jetstream()
     # await init_nats_bot(bot, nc, js)
 
-    # client = TelegramClient('anon', api_id, api_hash)
+    client = TelegramClient('anon', api=API.TelegramDesktop.Generate())
 
-    # client.start()
-    # client.run_until_disconnected()
-
+    await client.start()
 
     await bot.delete_webhook(drop_pending_updates=True)
     dp.include_routers(user_router)
 
-    await dp.start_polling(bot)#, userbot=client)
+    await dp.start_polling(bot, userbot=client)
+
+    client.disconnect()
 
 
 if __name__ == '__main__':
