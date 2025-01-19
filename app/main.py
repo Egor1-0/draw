@@ -25,6 +25,7 @@ async def main():
     # await init_nats_bot(bot, nc, js)
 
     client = TelegramClient('anon', api=API.TelegramDesktop.Generate())
+    print(API.TelegramDesktop.Generate())
 
     await client.start()
 
