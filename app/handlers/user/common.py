@@ -2,16 +2,19 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
-from opentele.tl.telethon import TelegramClient
+from telethon import TelegramClient
 
 import keyboards.user as user_kb
 import database.queries as db
+from filters import HasPremissonsFilter
 from keyboards.user import DeleteWordFactory, DeleteChatFactory
 from states.states import GetWord, GetChat
 from utils.get_chat_url import get_telegram_link
 from utils.join_channel import join_channel_and_get_info
 
 router = Router()
+
+router.message.filter(HasPremissonsFilter())
 
 
 @router.message(CommandStart())
@@ -109,7 +112,6 @@ async def wait_for_word(message: Message, state: FSMContext, userbor: TelegramCl
     if not info:
         await message.answer('Произошла ошибка')
         return
-
 
     user = await db.get_user(message.from_user.id)
     await db.add_chat(user_id=user.id,

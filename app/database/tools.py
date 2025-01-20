@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from cuid import cuid
 
 from database.core import async_session, engine
 from database.models.base import Base
@@ -18,8 +19,12 @@ class DbConnection():
 
 async def create_table():
     async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+
+def _generate_cuid():
+    return cuid()
 
 
 db_connection = DbConnection(async_session=async_session)
