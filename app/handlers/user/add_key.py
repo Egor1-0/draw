@@ -13,6 +13,7 @@ router.message.filter(~HasPremissonsFilter())
 
 @router.message(CommandStart())
 async def start(message: Message):
+    await db.add_user(tg_id=message.from_user.id)
     await message.answer('Введите ключ, который вам дал админ')
 
 
@@ -22,5 +23,6 @@ async def get_key(message: Message):
     if not key:
         await message.answer('Неправильный ключ')
         return
+    user = await db.get_user(message.from_user.id)
     await message.answer('Вам доступен функционал', reply_markup=user_kb.start_kb)
-    await db.add_key(tg_id=message.from_user.id, key=key.value)
+    await db.add_key(user_id=user.id, key=key.value)

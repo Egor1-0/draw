@@ -5,6 +5,7 @@ from database.models.chat import Chat
 from database.models.keyword import Keyword
 from database.models.user import User
 from database.tools import db_connection
+from database.models.key import Key
 
 
 @db_connection
@@ -34,3 +35,13 @@ async def add_chat(session: AsyncSession,
                                   link=link,
                                   name=name))
     await session.commit()
+
+
+@db_connection
+async def create_and_get_key(session: AsyncSession):
+    key = Key()
+    session.add(key)
+    # await session.flush()
+    await session.commit()
+    await session.refresh(key)
+    return key

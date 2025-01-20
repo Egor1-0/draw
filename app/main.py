@@ -9,6 +9,7 @@ from telethon import TelegramClient
 
 from config import config
 from handlers.user import user_router
+from handlers.admin import admin_router
 from database.tools import create_table
 
 
@@ -30,7 +31,7 @@ async def main():
     client = None
 
     await bot.delete_webhook(drop_pending_updates=True)
-    dp.include_routers(user_router)
+    dp.include_routers(admin_router, user_router)
 
     await dp.start_polling(bot, userbot=client)
 

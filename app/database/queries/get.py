@@ -23,12 +23,3 @@ async def get_key(session: AsyncSession, key: str):
     return await session.scalar(select(Key)
                                 .where(Key.value == key)
                                 )
-
-
-@db_connection
-async def create_and_get_key(session: AsyncSession):
-    key = Key()
-    session.add(key)
-    await session.refresh()
-    await session.commit()
-    return key

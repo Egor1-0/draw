@@ -9,7 +9,7 @@ from database.tools import db_connection
 
 
 @db_connection
-async def add_key(session: AsyncSession, tg_id: int, key: str):
+async def add_key(session: AsyncSession, user_id: int, key: str):
     await session.execute(update(Key).where(Key.value == key)
-                          .values(user_id=tg_id))
+                          .values(user_id=user_id))
     await session.commit()

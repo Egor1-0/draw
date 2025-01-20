@@ -13,14 +13,6 @@ class DatabaseConfig(BaseConfig):
 
     def create_url(self):
         # return 'sqlite+aiosqlite:///data/test.db'
-        print(URL.create(
-            drivername="postgresql+asyncpg",
-            host=self.host,
-            port=self.port,
-            username=self.db_user,
-            password=self.password.get_secret_value(),
-            database=self.db_name,
-        ), self.db_user)
         return URL.create(
             drivername="postgresql+asyncpg",
             host=self.host,
