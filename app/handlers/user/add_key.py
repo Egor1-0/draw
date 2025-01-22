@@ -20,7 +20,7 @@ async def start(message: Message):
 @router.message(F.text)
 async def get_key(message: Message):
     key = await db.get_key(key=message.text)
-    if not key:
+    if not key or key.user:
         await message.answer('Неправильный ключ')
         return
     user = await db.get_user(message.from_user.id)

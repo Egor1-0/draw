@@ -104,7 +104,8 @@ async def wait_for_word(message: Message, state: FSMContext, userbor: TelegramCl
         await message.answer('Ссылка должна быть ССЫЛКОЙ. введите заново или нажмите "отмена"',
                              reply_markup=user_kb.cancel)
         return
-    await message.answer(url)
+
+    # await message.answer(url)
     await state.clear()
 
     info = await join_channel_and_get_info(userbor, url)
@@ -120,7 +121,6 @@ async def wait_for_word(message: Message, state: FSMContext, userbor: TelegramCl
     await message.answer('Чат добавлен')
 
 
-#
 @router.message(F.text == 'Удалить чат')
 async def delete_keyword(message: Message):
     user = await db.get_user(message.from_user.id)

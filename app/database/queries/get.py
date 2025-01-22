@@ -22,4 +22,5 @@ async def get_user(session: AsyncSession, tg_id: int):
 async def get_key(session: AsyncSession, key: str):
     return await session.scalar(select(Key)
                                 .where(Key.value == key)
+                                .options(selectinload(Key.user))
                                 )
