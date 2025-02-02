@@ -12,6 +12,8 @@ from states.states import GetWord, GetChat
 from utils.get_chat_url import get_telegram_link
 from utils.join_channel import join_channel_and_get_info
 
+from utils.redis_serv import redis_serv
+
 router = Router()
 
 router.message.filter(HasPremissonsFilter())
@@ -55,6 +57,7 @@ async def wait_for_word(message: Message, state: FSMContext):
         return
 
     user = await db.get_user(message.from_user.id)
+    await redis_serv.set_keyword(message.text, user.tg_id)
     await db.add_word(tg_id=user.id, word=message.text)
     await state.clear()
     await message.answer('Слово добавлено')
@@ -72,9 +75,11 @@ async def delete_keyword(message: Message):
 
 
 @router.callback_query(DeleteWordFactory.filter())
-async def wait_for_word_ro_delete(callback: CallbackQuery,
+async def wait_for_word_to_delete(callback: CallbackQuery,
                                   callback_data: DeleteWordFactory):
+    kw = await db.get_keyword_by_id(callback_data.word_id)
     await db.delete_word(word_id=callback_data.word_id)
+    await redis_serv.remove_keyword(kw.value)
     await callback.message.answer('Слово удалено')
     await callback.answer()
 
@@ -98,21 +103,21 @@ async def add_word(message: Message, state: FSMContext):
 
 
 @router.message(GetChat.chat)
-async def wait_for_word(message: Message, state: FSMContext, userbor: TelegramClient):
+async def wait_for_chat(message: Message, state: FSMContext, userbot: TelegramClient):
     url = get_telegram_link(message)
     if not url:
         await message.answer('Ссылка должна быть ССЫЛКОЙ. введите заново или нажмите "отмена"',
                              reply_markup=user_kb.cancel)
         return
 
-    # await message.answer(url)
     await state.clear()
 
-    info = await join_channel_and_get_info(userbor, url)
+    info = await join_channel_and_get_info(userbot, url)
     if not info:
         await message.answer('Произошла ошибка')
         return
 
+    await redis_serv.set_chat(chat_id=info['tg_id'], user_id=message.from_user.id)
     user = await db.get_user(message.from_user.id)
     await db.add_chat(user_id=user.id,
                       link=info['link'],
@@ -124,8 +129,8 @@ async def wait_for_word(message: Message, state: FSMContext, userbor: TelegramCl
 @router.message(F.text == 'Удалить чат')
 async def delete_keyword(message: Message):
     user = await db.get_user(message.from_user.id)
-    if not user.words:
-        await message.answer('У вас нет ключевых слов')
+    if not user.chats:
+        await message.answer('У вас нет чатов')
         return
 
     await message.answer('Нажмите на чат, чтобы удалить его',
@@ -133,8 +138,9 @@ async def delete_keyword(message: Message):
 
 
 @router.callback_query(DeleteChatFactory.filter())
-async def wait_for_word_ro_delete(callback: CallbackQuery,
+async def wait_for_chat_to_delete(callback: CallbackQuery,
                                   callback_data: DeleteChatFactory):
     await db.delete_chat(chat_id=callback_data.chat_id)
-    await callback.message.answer('Слово удалено')
+    await redis_serv.remove_chat(callback_data.chat_id)
+    await callback.message.answer('Чат удален')
     await callback.answer()

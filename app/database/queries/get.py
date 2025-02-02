@@ -24,3 +24,10 @@ async def get_key(session: AsyncSession, key: str):
                                 .where(Key.value == key)
                                 .options(selectinload(Key.user))
                                 )
+
+
+@db_connection
+async def get_keyword_by_id(session: AsyncSession, kw_id: int):
+    return await session.scalar(select(Keyword)
+                                .where(Keyword.id == kw_id)
+                                )

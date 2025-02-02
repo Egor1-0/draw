@@ -21,7 +21,7 @@ def delete_keyword_kb(words: list[Keyword]):
 def delete_chat_kb(chats: list[Chat]):
     kb = InlineKeyboardBuilder()
     for chat in chats:
-        kb.button(text=chat.name, callback_data=DeleteChatFactory(word_id=chat.id))
+        kb.button(text=chat.name, callback_data=DeleteChatFactory(chat_id=chat.id))
 
     kb.adjust(1)
 
