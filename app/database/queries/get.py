@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload
 
+from database.models.chat import Chat
 from database.models.key import Key
 from database.models.keyword import Keyword
 from database.models.user import User
@@ -31,3 +32,10 @@ async def get_keyword_by_id(session: AsyncSession, kw_id: int):
     return await session.scalar(select(Keyword)
                                 .where(Keyword.id == kw_id)
                                 )
+
+
+@db_connection
+async def get_chat_by_id(session: AsyncSession, chat_id: int):
+    return await session.scalar(select(Chat)
+                            .where(Chat.id == chat_id)
+                            )

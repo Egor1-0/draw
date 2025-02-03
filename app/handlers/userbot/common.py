@@ -5,6 +5,7 @@ from opentele.api import API
 
 from telethon import events
 from utils.redis_serv import redis_serv
+from utils.send_notification import send_notif
 
 client = TelegramClient(
     'anon',
@@ -17,12 +18,16 @@ async def check_message(event):
     chat = await event.get_chat()
     chat_id = chat.id
     chats = await redis_serv.get_all_chats()
-    print(chat_id, list(chats.keys()))
-    if not chat_id in list(chats.keys()):
+
+    if not str(chat_id) in list(chats.keys()):
         return
-    print(2)
+
     keywords = await redis_serv.get_all_keywords()
-    print(keywords)
     for keyword in keywords.keys():
-        if keyword in chat.text:
-            print(keyword)
+        if keyword in event.text:
+            if hasattr(event.chat, 'username') and event.chat.username:  # Проверяем наличие username у чата/канала
+                post_link = f"https://t.me/{event.chat.username}/{event.message.id}"
+            else:
+                post_link = f"tg://privatepost?channel={chat_id}&post={event.message.id}"  # Для закрытых каналов/чатов
+
+            await send_notif(user_id=keywords[keyword], text=f'Слово {keyword} использовалось в {post_link}')

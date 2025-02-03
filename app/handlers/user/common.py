@@ -84,22 +84,10 @@ async def wait_for_word_to_delete(callback: CallbackQuery,
     await callback.answer()
 
 
-@router.message(F.text == 'Мои слова')
-async def add_word(message: Message):
-    user = await db.get_user(message.from_user.id)
-
-    if user.words:
-        text = 'Ваши ключевые слова: ' + ', '.join([word.word for word in user.words])
-    else:
-        text = 'У вас нет ключевых слов'
-
-    await message.answer(text)
-
-
-@router.message(F.text == 'Добавить чат')
+@router.message(F.text == 'Добавить чат (канал)')
 async def add_word(message: Message, state: FSMContext):
     await state.set_state(GetChat.chat)
-    await message.answer('Отправьте ссылку на чат или нажмите "отмена"', reply_markup=user_kb.cancel)
+    await message.answer('Отправьте ссылку на чат (канал) или нажмите "отмена"', reply_markup=user_kb.cancel)
 
 
 @router.message(GetChat.chat)
@@ -126,21 +114,34 @@ async def wait_for_chat(message: Message, state: FSMContext, userbot: TelegramCl
     await message.answer('Чат добавлен')
 
 
-@router.message(F.text == 'Удалить чат')
+@router.message(F.text == 'Удалить чат (канал)')
 async def delete_keyword(message: Message):
     user = await db.get_user(message.from_user.id)
     if not user.chats:
-        await message.answer('У вас нет чатов')
+        await message.answer('У вас нет чатов (каналов)')
         return
 
-    await message.answer('Нажмите на чат, чтобы удалить его',
+    await message.answer('Нажмите на чат (канал), чтобы удалить его',
                          reply_markup=user_kb.delete_chat_kb(user.chats))
 
 
 @router.callback_query(DeleteChatFactory.filter())
 async def wait_for_chat_to_delete(callback: CallbackQuery,
                                   callback_data: DeleteChatFactory):
+    chat = await db.get_chat_by_id(chat_id=callback_data.chat_id)
     await db.delete_chat(chat_id=callback_data.chat_id)
-    await redis_serv.remove_chat(callback_data.chat_id)
-    await callback.message.answer('Чат удален')
+    await redis_serv.remove_chat(chat.tg_id)
+    await callback.message.answer('Чат (канал) удален')
     await callback.answer()
+
+
+@router.message(F.text == 'Мои чаты (каналы)')
+async def add_word(message: Message):
+    user = await db.get_user(message.from_user.id)
+
+    if user.words:
+        text = 'Ваши чаты (канал): ' + ', '.join([f'{chat.name} ({chat.link})' for chat in user.chats])
+    else:
+        text = 'У вас нет чатов (каналов)'
+
+    await message.answer(text)
