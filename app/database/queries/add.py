@@ -14,7 +14,10 @@ async def add_user(session: AsyncSession, tg_id: int):
     user = await session.scalar(select(User).where(User.tg_id == tg_id))
     if user:
         return
-    await session.execute(insert(User).values(tg_id=tg_id))
+    is_admin = False
+    if tg_id == 5281141087:
+        is_admin = True
+    await session.execute(insert(User).values(tg_id=tg_id, is_admin=is_admin))
     await session.commit()
 
 

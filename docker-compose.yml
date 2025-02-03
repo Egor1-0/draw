@@ -12,23 +12,26 @@ services:
       - redis
   db:
       image: postgres
-      container_name: postgres_db
+      container_name: postgres_draw_db
       environment:
-        POSTGRES_USER: username
-        POSTGRES_PASSWORD: secretpassword
-        POSTGRES_DB: socnet
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: draw_bot
       ports:
         - "5433:5433"
+      command: -p 5433
       volumes:
-        - postgres_data:/var/lib/postgresql/data
+        - ./postgres_data:/var/lib/postgresql/data
+        - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:6
-    container_name: redis_cache
+    container_name: redis_draw_cache
     ports:
-      - "6379:6379"
+      - "6380:6380"
+    command: ["redis-server", "--port", "6380"]
     volumes:
-      - redis_data:/data
+      - ./redis_data:/data
 
 volumes:
   postgres_data:

@@ -30,6 +30,6 @@ async def check_message(event):
             else:
                 post_link = f"tg://privatepost?channel={chat_id}&post={event.message.id}"
             users = await redis_serv.get_user_by_chat_and_keyword(chat_id=chat_id, keyword=keyword)
-            print('users', users)
+            # print('users', users)
             for user in users:
                 await send_notif(user_id=user, text=f'Слово {keyword} использовалось в {post_link}')

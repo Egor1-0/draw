@@ -1,9 +1,10 @@
 from redis.asyncio import Redis
 
+from config import config
 
 class RedisService:
-    def __init__(self, host='localhost', port=6379):
-        self.r = Redis(host=host, port=port, decode_responses=True)
+    def __init__(self):
+        self.r = Redis(host=config.redis.redis_host, port=config.redis.redis_port, decode_responses=True)
 
     async def set_chat_user(self, chat_id: int, user_id: int):
         """Добавляет пользователя в чат."""
