@@ -1,5 +1,3 @@
-from asyncio import FastChildWatcher
-
 from redis.asyncio import Redis
 
 
@@ -82,7 +80,6 @@ class RedisService:
         """Очищает все данные в Redis."""
         await self.r.flushdb()
         print("Все данные в Redis очищены.")
-
 
 
 redis_serv = RedisService()

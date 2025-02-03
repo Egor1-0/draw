@@ -8,11 +8,13 @@ from database.tools import db_connection
 
 @db_connection
 async def delete_word(session: AsyncSession, word_id: int):
+    """удаление слова по айди из бд"""
     await session.execute(delete(Keyword).where(Keyword.id == word_id))
     await session.commit()
 
 
 @db_connection
 async def delete_chat(session: AsyncSession, chat_id: int):
+    """удаление чата по айди из бд"""
     await session.execute(delete(Chat).where(Chat.id == chat_id))
     await session.commit()

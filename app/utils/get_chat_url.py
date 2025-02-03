@@ -4,6 +4,7 @@ from aiogram.types import Message
 
 
 def get_telegram_link(message: Message):
+    """получение из сообщения ссылки на вход в чат"""
     pattern = r'^https?://t\.me/(?:\+[a-zA-Z0-9_-]+|joinchat/[a-zA-Z0-9_-]+|[a-zA-Z0-9_]+/?)$'
     entities = message.entities or []
 

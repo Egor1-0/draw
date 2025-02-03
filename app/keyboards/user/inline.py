@@ -10,6 +10,7 @@ cancel = InlineKeyboardMarkup(inline_keyboard=[
 ], resize_keyboard=True)
 
 def delete_keyword_kb(words: list[Keyword]):
+    """клава для удаления слова"""
     kb = InlineKeyboardBuilder()
     for word in words:
         kb.button(text=word.word, callback_data=DeleteWordFactory(word_id=word.id))
@@ -19,6 +20,7 @@ def delete_keyword_kb(words: list[Keyword]):
     return kb.as_markup(resize_keyboard=True)
 
 def delete_chat_kb(chats: list[Chat]):
+    """клава для удаления чата"""
     kb = InlineKeyboardBuilder()
     for chat in chats:
         kb.button(text=chat.name, callback_data=DeleteChatFactory(chat_id=chat.id))

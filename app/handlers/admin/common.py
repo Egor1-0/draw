@@ -12,12 +12,14 @@ router.message.filter(IsAdmin())
 
 
 @router.message(Command('admin'))
-async def start(message: Message):
+async def admin(message: Message):
+    """обраотка команды администрации"""
     await message.answer('Админская часть', reply_markup=admin_kb.main_admin)
 
 
 @router.callback_query(F.data == 'create_key')
 async def create_key(callback: CallbackQuery):
+    """создание ключа и его отправка юзеру"""
     key = await db.create_and_get_key()
     await callback.message.answer(key.value)
     await callback.answer()

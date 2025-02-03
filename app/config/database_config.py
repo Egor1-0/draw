@@ -12,6 +12,7 @@ class DatabaseConfig(BaseConfig):
     db_name: str
 
     def create_url(self):
+        """создает и возвращает юрл для подключения к бд через алхимию"""
         # return 'sqlite+aiosqlite:///data/test.db'
         return URL.create(
             drivername="postgresql+asyncpg",

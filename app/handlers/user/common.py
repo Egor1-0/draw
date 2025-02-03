@@ -21,18 +21,21 @@ router.message.filter(HasPremissonsFilter())
 
 @router.message(CommandStart())
 async def start(message: Message):
+    """обработка комады старт"""
     await message.answer('Приветственный текст', reply_markup=user_kb.start_kb)
 
 
 @router.callback_query(F.data == 'cancel')
 async def cancel(callback: CallbackQuery, state: FSMContext):
+    """отмена всех действий. очистка состояний"""
     await state.clear()
     await callback.message.answer('Отменено')
     await callback.answer()
 
 
 @router.message(F.text == 'Мои слова')
-async def add_word(message: Message):
+async def get_user_words(message: Message):
+    """получение юзером всех его ключевых слов"""
     user = await db.get_user(message.from_user.id)
 
     if user.words:
@@ -45,19 +48,21 @@ async def add_word(message: Message):
 
 @router.message(F.text == 'Добавить ключевое слово')
 async def add_word(message: Message, state: FSMContext):
+    """добавление юзером слова. Устанавливается состояние и ожидается слово"""
     await state.set_state(GetWord.word)
     await message.answer('Введите ключевое слово или нажмите "отмена"', reply_markup=user_kb.cancel)
 
 
 @router.message(GetWord.word)
 async def wait_for_word(message: Message, state: FSMContext):
+    """сохранение ключевого слова в бд и редис"""
     if len(message.text.split()) != 1:
         await message.answer('Слово должно быть СЛОВОМ. Введите заново или нажмите "отмена"',
                              reply_markup=user_kb.cancel)
         return
 
     user = await db.get_user(message.from_user.id)
-    await redis_serv.set_keyword(message.text, user.tg_id)
+    await redis_serv.set_keyword_user(keyword=message.text, user_id=user.tg_id)
     await db.add_word(tg_id=user.id, word=message.text)
     await state.clear()
     await message.answer('Слово добавлено')
@@ -65,6 +70,7 @@ async def wait_for_word(message: Message, state: FSMContext):
 
 @router.message(F.text == 'Удалить ключевое слово')
 async def delete_keyword(message: Message):
+    """удаление ключевого слова. выводится инлайн клава. необходимо нажать на слово чтобы удалить"""
     user = await db.get_user(message.from_user.id)
     if not user.words:
         await message.answer('У вас нет ключевых слов')
@@ -77,21 +83,24 @@ async def delete_keyword(message: Message):
 @router.callback_query(DeleteWordFactory.filter())
 async def wait_for_word_to_delete(callback: CallbackQuery,
                                   callback_data: DeleteWordFactory):
+    """удаление ключевого слова из бд и редиса после нажатия на кнопку"""
     kw = await db.get_keyword_by_id(callback_data.word_id)
     await db.delete_word(word_id=callback_data.word_id)
-    await redis_serv.remove_keyword(kw.value)
+    await redis_serv.remove_keyword_user(keyword=kw.word, user_id=callback.from_user.id)
     await callback.message.answer('Слово удалено')
     await callback.answer()
 
 
 @router.message(F.text == 'Добавить чат (канал)')
 async def add_word(message: Message, state: FSMContext):
+    """добавление чата. ожидается ссылка на чат"""
     await state.set_state(GetChat.chat)
     await message.answer('Отправьте ссылку на чат (канал) или нажмите "отмена"', reply_markup=user_kb.cancel)
 
 
 @router.message(GetChat.chat)
 async def wait_for_chat(message: Message, state: FSMContext, userbot: TelegramClient):
+    """сохранение чата в бд и редис, если ссылка рабочая"""
     url = get_telegram_link(message)
     if not url:
         await message.answer('Ссылка должна быть ССЫЛКОЙ. введите заново или нажмите "отмена"',
@@ -105,7 +114,7 @@ async def wait_for_chat(message: Message, state: FSMContext, userbot: TelegramCl
         await message.answer('Произошла ошибка')
         return
 
-    await redis_serv.set_chat(chat_id=info['tg_id'], user_id=message.from_user.id)
+    await redis_serv.set_chat_user(chat_id=info['tg_id'], user_id=message.from_user.id)
     user = await db.get_user(message.from_user.id)
     await db.add_chat(user_id=user.id,
                       link=info['link'],
@@ -116,6 +125,7 @@ async def wait_for_chat(message: Message, state: FSMContext, userbot: TelegramCl
 
 @router.message(F.text == 'Удалить чат (канал)')
 async def delete_keyword(message: Message):
+    """удаление чата. выводится инлайн клава с чатами. нужно нажать на кнопку"""
     user = await db.get_user(message.from_user.id)
     if not user.chats:
         await message.answer('У вас нет чатов (каналов)')
@@ -128,18 +138,20 @@ async def delete_keyword(message: Message):
 @router.callback_query(DeleteChatFactory.filter())
 async def wait_for_chat_to_delete(callback: CallbackQuery,
                                   callback_data: DeleteChatFactory):
+    """удаление чата из бд и кеша после нажатия на кнопку"""
     chat = await db.get_chat_by_id(chat_id=callback_data.chat_id)
     await db.delete_chat(chat_id=callback_data.chat_id)
-    await redis_serv.remove_chat(chat.tg_id)
+    await redis_serv.remove_chat_user(chat_id=chat.tg_id, user_id=callback.from_user.id)
     await callback.message.answer('Чат (канал) удален')
     await callback.answer()
 
 
 @router.message(F.text == 'Мои чаты (каналы)')
-async def add_word(message: Message):
+async def get_user_chats(message: Message):
+    """получение чатов юзера"""
     user = await db.get_user(message.from_user.id)
 
-    if user.words:
+    if user.chats:
         text = 'Ваши чаты (канал): ' + ', '.join([f'{chat.name} ({chat.link})' for chat in user.chats])
     else:
         text = 'У вас нет чатов (каналов)'

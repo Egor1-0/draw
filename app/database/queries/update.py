@@ -10,6 +10,7 @@ from database.tools import db_connection
 
 @db_connection
 async def add_key(session: AsyncSession, user_id: int, key: str):
+    """добавление ключа юзеру"""
     await session.execute(update(Key).where(Key.value == key)
                           .values(user_id=user_id))
     await session.commit()

@@ -10,6 +10,7 @@ from database.models.key import Key
 
 @db_connection
 async def add_user(session: AsyncSession, tg_id: int):
+    """добавление юзера, если его нет в бд"""
     user = await session.scalar(select(User).where(User.tg_id == tg_id))
     if user:
         return
@@ -19,6 +20,7 @@ async def add_user(session: AsyncSession, tg_id: int):
 
 @db_connection
 async def add_word(session: AsyncSession, tg_id: int, word: str):
+    """добавление ключевого слова к юзеру"""
     await session.execute(insert(Keyword).values(user_id=tg_id, word=word))
     await session.commit()
 
@@ -29,6 +31,7 @@ async def add_chat(session: AsyncSession,
                    link: str,
                    name: str,
                    user_id: int):
+    """добавление чата к юзеру"""
     await session.execute(insert(Chat)
                           .values(user_id=user_id,
                                   tg_id=tg_id,
@@ -39,6 +42,7 @@ async def add_chat(session: AsyncSession,
 
 @db_connection
 async def create_and_get_key(session: AsyncSession):
+    """создание и выдача ключа доступа"""
     key = Key()
     session.add(key)
     # await session.flush()

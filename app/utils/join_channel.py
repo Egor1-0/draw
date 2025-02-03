@@ -4,6 +4,7 @@ from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.errors import UserAlreadyParticipantError
 
 async def join_channel_and_get_info(client: TelegramClient, link: str):
+    """вход в чат через юзер бота и возврат информации о чате"""
     if link.startswith("https://t.me/+"):
         invite_hash = link.split("+")[1]
         try:
