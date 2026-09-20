@@ -7,7 +7,7 @@ from utils.send_notification import send_notif
 
 client = TelegramClient(
     'anon',
-    API.TelegramDesktop.Generate(unique_id='+77079041946')
+    API.TelegramDesktop.Generate(unique_id='unique')
 )
 
 
